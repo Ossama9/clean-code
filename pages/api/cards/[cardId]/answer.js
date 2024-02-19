@@ -1,12 +1,8 @@
-export default function handler(req, res) {
+import {answerCard} from "../../../../src/controller/cardController";
+
+export default async function handler(req, res) {
     if (req.method === 'PATCH') {
-        const { cardId } = req.query;
-        const { isValid } = req.body;
-
-        // Logique pour traiter la réponse à une carte
-        // ...
-
-        res.status(204).end();
+        return await answerCard(req, res);
     } else {
         res.setHeader('Allow', ['PATCH']);
         res.status(405).end(`Method ${req.method} Not Allowed`);
