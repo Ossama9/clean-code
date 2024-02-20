@@ -1,22 +1,30 @@
-export default function handler(req, res) {
+import fs from 'fs';
+import path from 'path';
+
+const dataFilePath = path.join(process.cwd(), 'data', 'cards.json');
+
+export default async function handler(req, res) {
     if (req.method === 'GET') {
-        // Récupérer les tags de la requête
         const { tags } = req.query;
-
-        // Logique pour récupérer les cartes
-        // ...
-
         res.status(200).json({ cards: [] });
-    } else {
-        res.setHeader('Allow', ['GET']);
+    } 
+    else if (req.method === 'POST') {
+        const newCard = {
+            ...req.body,
+            category: 'FIRST', 
+        };
+        let cards = [];
+        if (fs.existsSync(dataFilePath)) {
+            const rawData = fs.readFileSync(dataFilePath);
+            cards = JSON.parse(rawData);
+        }
+        cards.push(newCard);
+        fs.writeFileSync(dataFilePath, JSON.stringify(cards, null, 2));
+        //await new Promise(resolve => setTimeout(resolve, 1000));
+        res.status(201).json(newCard);
+    } 
+    else {
+        res.setHeader('Allow', ['GET', 'POST']);
         res.status(405).end(`Method ${req.method} Not Allowed`);
     }
-    // Dans la fonction handler existante
-    if (req.method === 'POST') {
-        // Logique pour créer une nouvelle carte
-        // ...
-
-        res.status(201).json({ card: {} });
-    }
-
 }
