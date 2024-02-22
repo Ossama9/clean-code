@@ -1,27 +1,12 @@
-import fs from 'fs';
-import path from 'path';
-
-const dataFilePath = path.join(process.cwd(), 'data', 'cards.json');
+import {createCard, getCards} from "../../../src/controller/cardController";
 
 export default async function handler(req, res) {
     if (req.method === 'GET') {
         const { tags } = req.query;
-        res.status(200).json({ cards: [] });
+        return await getCards(req, res);
     } 
     else if (req.method === 'POST') {
-        const newCard = {
-            ...req.body,
-            category: 'FIRST', 
-        };
-        let cards = [];
-        if (fs.existsSync(dataFilePath)) {
-            const rawData = fs.readFileSync(dataFilePath);
-            cards = JSON.parse(rawData);
-        }
-        cards.push(newCard);
-        fs.writeFileSync(dataFilePath, JSON.stringify(cards, null, 2));
-        //await new Promise(resolve => setTimeout(resolve, 1000));
-        res.status(201).json(newCard);
+        return await createCard(req, res);
     } 
     else {
         res.setHeader('Allow', ['GET', 'POST']);

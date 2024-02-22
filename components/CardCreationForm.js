@@ -3,6 +3,7 @@ import { useState } from 'react';
 function CardCreationForm() {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
+  const [tag, setTag] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event) => {
@@ -12,6 +13,7 @@ function CardCreationForm() {
     const cardData = {
       question,
       answer,
+      tag,
     };
 
     try {
@@ -52,6 +54,15 @@ function CardCreationForm() {
         id="answer"
         value={answer}
         onChange={(e) => setAnswer(e.target.value)}
+        required
+      />
+
+      <label htmlFor="tag">Tag :</label>
+      <input
+        type="text"
+        id="tag"
+        value={tag}
+        onChange={(e) => setTag(e.target.value)}
         required
       />
 
