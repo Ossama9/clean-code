@@ -1,4 +1,5 @@
-import {getQuiz} from "../../../src/controller/quizzController";
+import {getQuiz} from "../../src/controller/quizzController";
+
 const fs = require('fs');
 const path = require('path');
 const datesFilePath = path.join(process.cwd(), 'data', 'dates.json');
