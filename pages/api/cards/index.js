@@ -1,5 +1,4 @@
-import {getCards} from "../../src/controller/cardController";
-import createCard from "../../create-card";
+import {getCards, createCard} from "../../src/controller/cardController";
 
 
 export default async function handler(req, res) {
