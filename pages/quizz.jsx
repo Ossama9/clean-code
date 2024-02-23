@@ -1,27 +1,47 @@
 import { useEffect, useState } from 'react';
+import datesData from '../data/dates.json';
 
 export default function CardsPage() {
+    const categories = ['SEVENTH', 'SIXTH', 'FIFTH', 'FOURTH', 'THIRD', 'SECOND', 'FIRST'];
     const [cards, setCards] = useState([]);
     const [userAnswers, setUserAnswers] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [answerFeedback, setAnswerFeedback] = useState({});
     const [forceValidate, setForceValidate] = useState({});
+    const [currentCategory, setCurrentCategory] = useState('');
+    const [quizAlreadyDone, setQuizAlreadyDone] = useState(false);
 
     useEffect(() => {
-        fetch('/api/cards')
-            .then(response => response.json())
-            .then(data => {
-                if (data.cards && Array.isArray(data.cards)) {
-                    setCards(data.cards.map(card => ({ ...card, attempted: false }))); 
-                } else {
-                    console.error("Format de la réponse inattendu:", data);
-                }
-                setIsLoading(false);
-            })
-            .catch(error => {
-                console.error("Failed to fetch cards:", error);
-                setIsLoading(false);
-            });
+        let startDateFromData = datesData.length > 0 ? new Date(datesData[0]) : new Date();
+        const today = new Date();
+        const daysElapsed = Math.floor((today - startDateFromData) / (1000 * 60 * 60 * 24));
+        let categoryToShow;
+        if (daysElapsed === 0) {
+            categoryToShow = 'FIRST';
+        } else {
+            const reviewIntervals = [64, 32, 16, 8, 4, 2, 1];
+            const categoryIndex = reviewIntervals.findIndex(interval => (daysElapsed % interval) === 0);
+            categoryToShow = categoryIndex !== -1 ? categories[categoryIndex] : null;
+        }
+        setCurrentCategory(categoryToShow); 
+        if (categoryToShow) {
+            setIsLoading(true);
+            fetch('/api/cards')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.cards && Array.isArray(data.cards)) {
+                        const filteredCards = data.cards.filter(card => card.category === categoryToShow);
+                        setCards(filteredCards);
+                    } else {
+                        console.error("Format de la réponse inattendu:", data);
+                    }
+                    setIsLoading(false);
+                })
+                .catch(error => {
+                    console.error("Failed to fetch cards:", error);
+                    setIsLoading(false);
+                });
+        }
     }, []);
 
     const handleAnswerChange = (e, cardId) => {
@@ -61,10 +81,11 @@ export default function CardsPage() {
     };
 
     if (isLoading) return <div>Loading...</div>;
+    if (quizAlreadyDone) return <div>Le quiz a déjà été fait aujourd'hui.</div>;
 
     return (
         <div>
-            <h1>Questions</h1>
+            <h1>Questions da la categorie {currentCategory}</h1>
             {cards.map(card => (
                 <div key={card.id}>
                     <h2>{card.question}</h2>
