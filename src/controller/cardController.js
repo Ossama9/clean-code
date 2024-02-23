@@ -43,8 +43,8 @@ export async function updateCard(req, res) {
     const { isValid } = req.body;
     try {
         const updatedCard = await cardService.promoteCardIfCorrect(cardId, isValid);
-        res.status(204);
+        return res.status(204).json()
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        return  res.status(400).json({ error: error.message });
     }
 }
