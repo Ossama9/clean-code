@@ -22,13 +22,16 @@ class CardRepository {
     }
 
     addCard(cardData) {
+        const todayMidnightUTC = new Date();
+        todayMidnightUTC.setUTCHours(0, 0, 0, 0);
         const newCard = {
-            id: uuidv4(), 
+            id: uuidv4(),
             ...cardData,
-            category: 'FIRST', 
+            category: 'FIRST',
+            lastUpdated: todayMidnightUTC.getTime()
         };
         this.cards.push(newCard);
-        this.saveCardsToFile(); 
+        this.saveCardsToFile();
         return newCard;
     }
 
@@ -49,15 +52,43 @@ class CardRepository {
         });
     }
 
+    async getCardsByTags(tags) {
+        try {
+            const cards = await this.getCards();
+
+            if (tags && tags.length) {
+                return cards.filter(card => tags.includes(card.tag));
+            }
+            return cards;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+
+    getCardById(cardId) {
+        const index = this.cards.findIndex(card => card.id === cardId);
+        if (index === -1) {
+            throw new Error('Card not found');
+        }
+        return this.cards[index];
+    }
+
     updateCard(cardId, updates) {
         const index = this.cards.findIndex(card => card.id === cardId);
         if (index === -1) {
             throw new Error('Card not found');
-        }    
+        }
         this.cards[index] = { ...this.cards[index], ...updates };
-        this.saveCardsToFile();    
+        this.saveCardsToFile();
         return this.cards[index];
     }
+
+    removeCard(cardId) {
+        this.cards = this.cards.filter(card => card.id !== cardId);
+        this.saveCardsToFile();
+    }
+
 
 }
 
