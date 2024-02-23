@@ -1,12 +1,8 @@
-export default function handler(req, res) {
+import {getQuiz} from "../../../src/controller/quizzController";
+
+export default async function handler(req, res) {
     if (req.method === 'GET') {
-        // Récupérer la date de la requête
-        const { date } = req.query;
-
-        // Logique pour récupérer les cartes pour le quiz
-        // ...
-
-        res.status(200).json({ cards: [] });
+        return await getQuiz(req,res)
     } else {
         res.setHeader('Allow', ['GET']);
         res.status(405).end(`Method ${req.method} Not Allowed`);

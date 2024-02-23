@@ -2,7 +2,6 @@ import {createCard, getCards} from "../../../src/controller/cardController";
 
 export default async function handler(req, res) {
     if (req.method === 'GET') {
-        const { tags } = req.query;
         return await getCards(req, res);
     } 
     else if (req.method === 'POST') {
