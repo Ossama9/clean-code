@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import BackButton from "../components/BackButton";
+import {getCards, getCardsByTags} from "../services/cards";
 
 
 const CreateCardPage = () => {
@@ -7,15 +8,12 @@ const CreateCardPage = () => {
     const [tags, setTags] = useState([]);
     const [selectedTags, setSelectedTags] = useState({});
     useEffect(() => {
-        fetch('/api/cards')
-            .then(response => response.json())
-            .then(data => {
-                setCards(data);
-                const extractedTags = new Set();
-                data.forEach(card => extractedTags.add(card.tag));
-                setTags(Array.from(extractedTags));
-            })
-            .catch(error => console.error('Erreur lors de la récupération des cartes:', error));
+        getCards().then(data => {
+            setCards(data);
+            const extractedTags = new Set();
+            data.forEach(card => extractedTags.add(card.tag));
+            setTags(Array.from(extractedTags));
+        }).catch(error => console.error(error));
     }, []);
 
     const handleTagChange = (tag) => {
@@ -30,17 +28,18 @@ const CreateCardPage = () => {
             .filter(([tag, isSelected]) => isSelected)
             .map(([tag]) => tag);
 
-        if (selectedTagsList.length > 0) {
-            fetch(`/api/cards?tags=${selectedTagsList.join(',')}`)
-                .then(response => response.json())
-                .then(data => setCards(data))
-                .catch(error => console.error('Erreur lors du filtrage des cartes:', error));
-        } else {
-            fetch('/api/cards')
-                .then(response => response.json())
-                .then(data => setCards(data))
-                .catch(error => console.error('Erreur lors de la récupération des cartes:', error));
-        }
+        const fetchCards = async () => {
+            try {
+                const data = selectedTagsList.length > 0
+                    ? await getCardsByTags(selectedTagsList)
+                    : await getCards();
+                setCards(data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchCards();
     }, [selectedTags]);
 
     return (
